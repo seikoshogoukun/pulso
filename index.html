@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6f2">
+  <title>Pulso — tu entrenamiento, a tu ritmo</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --paper: #1b1e1c;
+      --surface: #252a27;
+      --ink: #e6ebe7;
+      --muted: #a0aaa3;
+      --line: #373e39;
+      --green: #9bc4a8;
+      --green-dark: #acd0b6;
+      --mint: #303d34;
+      --lime: #d8ed8c;
+      --orange: #ed9d68;
+      --shadow: 0 14px 38px rgba(31, 50, 40, .055);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .app { max-width: 1240px; margin: 0 auto; padding: 28px 38px 56px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 34px; }
+    .brand { display: flex; align-items: center; gap: 11px; font-size: 19px; font-weight: 760; letter-spacing: -.5px; }
+    .brand-mark { display: grid; place-items: center; width: 35px; height: 35px; border-radius: 12px; color: #fff; background: var(--green); }
+    .brand-mark svg { width: 19px; height: 19px; }
+    .top-date { color: var(--muted); font-size: 13px; }
+    .hero { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 27px; }
+    .eyebrow { margin: 0 0 9px; color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: 1.5px; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(29px, 4vw, 42px); line-height: 1.08; letter-spacing: -1.8px; font-weight: 730; }
+    .hero-copy { max-width: 430px; margin: 10px 0 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .today-chip { display: inline-flex; align-items: center; gap: 8px; padding: 10px 13px; border: 1px solid #dfe8db; border-radius: 99px; color: var(--green); background: #eff4eb; font-size: 12px; font-weight: 650; white-space: nowrap; }
+    .today-chip > span:first-child { flex: 0 0 7px; width: 7px; height: 7px; border-radius: 50%; background: #77a66a; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 23px; }
+    .stat { display: flex; align-items: center; justify-content: space-between; min-height: 100px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+    .stat-label { margin: 0 0 9px; color: var(--muted); font-size: 12px; font-weight: 550; }
+    .stat-value { margin: 0; font-size: 27px; font-weight: 720; letter-spacing: -1px; }
+    .stat-unit { margin-left: 4px; color: var(--muted); font-size: 12px; font-weight: 550; letter-spacing: 0; }
+    .stat-icon { display: grid; place-items: center; width: 39px; height: 39px; border-radius: 13px; color: var(--green); background: var(--mint); }
+    .stat:nth-child(2) .stat-icon { color: #a2653b; background: #fff0e5; }
+    .stat:nth-child(3) .stat-icon { color: #657b31; background: #f0f4d9; }
+    .stat-icon svg { width: 19px; height: 19px; }
+    .layout { display: grid; grid-template-columns: minmax(330px, .92fr) minmax(420px, 1.28fr); gap: 19px; align-items: start; }
+    .panel { border: 1px solid var(--line); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); }
+    .form-panel { padding: 23px; }
+    .panel-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 21px; }
+    .panel-title { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -.4px; }
+    .panel-subtitle { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+    label, .field-label { color: #4c5952; font-size: 11px; font-weight: 650; }
+    input, textarea { width: 100%; min-width: 0; border: 1px solid #e5e9e3; border-radius: 9px; outline: 0; color: var(--ink); background: #fff; transition: border-color .15s, box-shadow .15s; }
+    input { height: 39px; padding: 0 11px; font-size: 12px; }
+    textarea { min-height: 66px; padding: 10px 11px; resize: vertical; font-size: 12px; }
+    input:focus, textarea:focus { border-color: #79a38c; box-shadow: 0 0 0 3px rgba(91, 139, 111, .11); }
+    input::placeholder, textarea::placeholder { color: #a3aba5; }
+    .section-row { display: flex; justify-content: space-between; align-items: center; margin: 22px 0 10px; }
+    .section-row .field-label { font-size: 12px; }
+    .text-button { padding: 0; border: 0; color: var(--green); background: none; font-size: 11px; font-weight: 700; }
+    .exercise-list { display: flex; flex-direction: column; gap: 9px; }
+    .exercise-row { display: grid; grid-template-columns: minmax(100px, 1fr) 48px 48px 58px 26px; gap: 6px; align-items: end; padding: 10px; border: 1px solid #edf0eb; border-radius: 11px; background: #fbfcfa; }
+    .exercise-row .field { gap: 5px; }
+    .exercise-row label { color: #849087; font-size: 9px; font-weight: 600; }
+    .exercise-row input { height: 34px; padding: 0 7px; border-radius: 7px; font-size: 11px; }
+    .exercise-row .exercise-name { min-width: 0; }
+    .remove-exercise { display: grid; place-items: center; align-self: center; width: 25px; height: 28px; margin-top: 13px; border: 0; border-radius: 7px; color: #89928b; background: transparent; font-size: 17px; }
+    .remove-exercise:hover { color: #a3483e; background: #faece9; }
+    .form-actions { display: flex; gap: 8px; margin-top: 18px; }
+    .primary-button, .secondary-button { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 42px; border-radius: 10px; font-size: 12px; font-weight: 700; transition: transform .12s, background .12s; }
+    .primary-button { flex: 1; padding: 0 16px; border: 0; color: white; background: var(--green); }
+    .primary-button:hover { background: var(--green-dark); transform: translateY(-1px); }
+    .primary-button svg { width: 15px; height: 15px; }
+    .secondary-button { padding: 0 13px; border: 1px solid var(--line); color: #536058; background: #fff; }
+    .secondary-button:hover { background: #f7f9f6; }
+    .history-panel { padding: 23px; }
+    .history-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 17px; }
+    .history-count { padding: 6px 9px; border-radius: 99px; color: #617066; background: #f1f4f0; font-size: 10px; font-weight: 650; }
+    .session-list { display: flex; flex-direction: column; gap: 10px; }
+    .session-card { padding: 15px; border: 1px solid #eaeee8; border-radius: 13px; background: #fff; }
+    .session-top { display: flex; justify-content: space-between; align-items: start; gap: 10px; }
+    .session-title { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: -.2px; }
+    .session-meta { display: flex; flex-wrap: wrap; gap: 7px 12px; margin-top: 6px; color: var(--muted); font-size: 10px; }
+    .session-buttons { display: flex; gap: 3px; }
+    .icon-button { display: grid; place-items: center; width: 29px; height: 29px; border: 0; border-radius: 8px; color: #7f8981; background: transparent; }
+    .icon-button:hover { color: var(--green); background: #f0f5f0; }
+    .icon-button.delete:hover { color: #ad5044; background: #fbefed; }
+    .icon-button svg { width: 14px; height: 14px; }
+    .session-exercises { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 13px; }
+    .exercise-pill { padding: 6px 9px; border-radius: 7px; color: #53645a; background: #f2f6f1; font-size: 10px; }
+    .exercise-pill strong { color: #32483b; font-weight: 700; }
+    .session-note { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid #f0f1ef; color: #7d867f; font-size: 11px; line-height: 1.45; }
+    .empty { display: grid; justify-items: center; padding: 43px 18px 39px; border: 1px dashed #dfe5dd; border-radius: 13px; text-align: center; background: #fbfcfa; }
+    .empty-icon { display: grid; place-items: center; width: 43px; height: 43px; margin-bottom: 12px; border-radius: 14px; color: var(--green); background: var(--mint); }
+    .empty-icon svg { width: 21px; height: 21px; }
+    .empty h3 { margin: 0; font-size: 13px; }
+    .empty p { max-width: 230px; margin: 6px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .toast { position: fixed; right: 25px; bottom: 24px; z-index: 5; padding: 12px 16px; border-radius: 10px; color: #fff; background: #293c32; box-shadow: 0 8px 28px rgba(16, 37, 25, .2); font-size: 12px; opacity: 0; transform: translateY(8px); pointer-events: none; transition: .2s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .footer { margin-top: 22px; color: #929b94; font-size: 10px; text-align: center; }
+    .brand-mark { color: #eef7f0; background: #426550; }
+    .today-chip { border-color: #3b4c40; color: var(--green); background: #29332c; }
+    .stat:nth-child(2) .stat-icon { color: #e6aa7f; background: #3c3029; }
+    .stat:nth-child(3) .stat-icon { color: #c5d994; background: #343a29; }
+    label, .field-label { color: #c0c9c2; }
+    input, textarea { border-color: #3a433d; color: var(--ink); background: #202421; }
+    input::placeholder, textarea::placeholder { color: #7f8a82; }
+    .exercise-row { border-color: #373e39; background: #202421; }
+    .exercise-row label, .remove-exercise { color: #9da89f; }
+    .remove-exercise:hover { color: #f0a39a; background: #432c2a; }
+    .primary-button { color: #17231b; }
+    .secondary-button { border-color: var(--line); color: #d1d9d2; background: #2a302c; }
+    .secondary-button:hover { background: #323934; }
+    .history-count { color: #c0cbc2; background: #323934; }
+    .session-card { border-color: #373e39; background: #252a27; }
+    .icon-button { color: #a0aaa3; }
+    .icon-button:hover { color: var(--green); background: #303a33; }
+    .icon-button.delete:hover { color: #f0aaa0; background: #432e2b; }
+    .exercise-pill { color: #c0cbc2; background: #303a33; }
+    .exercise-pill strong { color: #e1ebe3; }
+    .session-note { border-color: #373e39; color: #a0aaa3; }
+    .empty { border-color: #414a43; background: #202421; }
+    .toast { color: #eef5ef; background: #35483b; box-shadow: 0 8px 28px rgba(0, 0, 0, .3); }
+    .footer { color: #8d9890; }
+    .exercise-actions { display: flex; align-items: center; gap: 12px; }
+    .exercise-row-preview { grid-column: 1 / 2; width: 66px; height: 45px; border: 1px solid #3a433d; border-radius: 7px; object-fit: cover; background: #171a18; }
+    .exercise-pill { display: inline-flex; align-items: center; gap: 8px; }
+    .exercise-pill img { width: 40px; height: 36px; flex: 0 0 auto; border-radius: 5px; object-fit: cover; background: #202421; }
+    .exercise-pill-content { display: flex; flex-direction: column; gap: 3px; }
+    .exercise-pill-meta { color: #9eaaa1; font-size: 9px; }
+    .footer a { color: var(--green); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    .catalog-dialog { width: min(700px, calc(100% - 28px)); max-width: 700px; max-height: 86vh; padding: 0; overflow: hidden; border: 1px solid #414a43; border-radius: 18px; color: var(--ink); background: #252a27; box-shadow: 0 24px 80px rgba(0, 0, 0, .42); }
+    .catalog-dialog::backdrop { background: rgba(6, 9, 7, .74); backdrop-filter: blur(4px); }
+    .catalog-inner { display: flex; flex-direction: column; max-height: 86vh; padding: 22px; }
+    .catalog-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+    .catalog-head h2 { margin: 0; font-size: 18px; letter-spacing: -.4px; }
+    .catalog-head p { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+    .catalog-search { display: flex; gap: 8px; margin: 18px 0 10px; }
+    .catalog-search input { flex: 1; min-width: 0; height: 42px; }
+    .catalog-search .primary-button { flex: 0 0 auto; min-width: 95px; }
+    .catalog-hint { margin: 0 0 13px; color: #929d95; font-size: 10px; line-height: 1.45; }
+    .catalog-results { display: flex; flex-direction: column; gap: 9px; min-height: 70px; max-height: 54vh; padding-right: 3px; overflow: auto; }
+    .catalog-result { display: grid; grid-template-columns: 86px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 9px; border: 1px solid #373e39; border-radius: 12px; background: #202421; }
+    .catalog-result img { width: 86px; height: 70px; border-radius: 8px; object-fit: cover; background: #171a18; }
+    .catalog-image-placeholder { display: grid; place-items: center; width: 86px; height: 70px; border-radius: 8px; color: #849188; background: #171a18; font-size: 9px; }
+    .catalog-result h3 { margin: 0; font-size: 12px; font-weight: 700; text-transform: capitalize; }
+    .catalog-result p { margin: 5px 0 0; color: #a0aaa3; font-size: 10px; line-height: 1.4; }
+    .catalog-result .secondary-button { min-height: 34px; padding: 0 10px; white-space: nowrap; }
+    .catalog-search .primary-button:disabled { opacity: .68; cursor: wait; }
+    .catalog-message { margin: 0; padding: 21px 12px; border: 1px dashed #414a43; border-radius: 11px; color: #a0aaa3; font-size: 12px; text-align: center; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    @media (max-width: 850px) { .app { padding: 23px 22px 40px; } .hero { display: block; } .today-chip { margin-top: 16px; } .layout { grid-template-columns: 1fr; } .history-panel { order: 2; } }
+    @media (max-width: 560px) { .app { padding: 18px 14px 32px; } .topbar { margin-bottom: 27px; } .top-date { font-size: 11px; } .hero { display: block; } .today-chip { margin-top: 15px; } .stats { grid-template-columns: 1fr 1fr; gap: 9px; } .stat { min-height: 83px; padding: 13px; } .stat:nth-child(3) { grid-column: 1 / -1; } .stat-value { font-size: 23px; } .stat-icon { width: 34px; height: 34px; } .form-panel, .history-panel { padding: 17px; } .exercise-row { grid-template-columns: minmax(90px, 1fr) 42px 42px 50px 24px; gap: 4px; padding: 8px 6px; } .exercise-row input { padding: 0 5px; font-size: 10px; } .exercise-row label { font-size: 8px; } .form-grid { gap: 11px; } .exercise-actions { gap: 7px; } .section-row { align-items: flex-start; } .catalog-inner { padding: 17px; } .catalog-result { grid-template-columns: 64px minmax(0, 1fr); gap: 9px; } .catalog-result img { width: 64px; height: 62px; grid-row: span 2; } .catalog-result .secondary-button { grid-column: 2; justify-self: start; } }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 13h4l2.2-7 4.2 13 2.3-7H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Pulso
+      </div>
+      <div class="top-date" id="today-label"></div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Tu espacio de entrenamiento</p>
+        <h1>Progreso, a tu ritmo.</h1>
+        <p class="hero-copy">Anota lo que haces, celebra lo que avanzas y deja que la constancia haga el resto.</p>
+      </div>
+      <div class="today-chip"><span></span><span id="week-label"></span></div>
+    </section>
+
+    <section class="stats" aria-label="Resumen de actividad">
+      <article class="stat">
+        <div><p class="stat-label">Entrenos esta semana</p><p class="stat-value" id="week-count">0</p></div>
+        <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="M16 3v4M8 3v4M3 10h18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>
+      </article>
+      <article class="stat">
+        <div><p class="stat-label">Tiempo esta semana</p><p class="stat-value"><span id="week-minutes">0</span><span class="stat-unit">min</span></p></div>
+        <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v5l3.2 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </article>
+      <article class="stat">
+        <div><p class="stat-label">Entrenos registrados</p><p class="stat-value" id="total-count">0</p></div>
+        <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6 4h12a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8 9h8M8 13h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>
+      </article>
+    </section>
+
+    <section class="layout">
+      <form class="panel form-panel" id="workout-form">
+        <div class="panel-head">
+          <div><h2 class="panel-title" id="form-heading">Apunta tu entreno</h2><p class="panel-subtitle">Un registro rápido para seguir tu evolución.</p></div>
+        </div>
+        <div class="form-grid">
+          <div class="field full"><label for="workout-name">Nombre del entreno</label><input id="workout-name" name="name" placeholder="Ej. Pierna y glúteo" maxlength="60" required></div>
+          <div class="field"><label for="workout-date">Fecha</label><input id="workout-date" name="date" type="date" required></div>
+          <div class="field"><label for="workout-duration">Duración (min)</label><input id="workout-duration" name="duration" type="number" min="1" max="600" placeholder="Ej. 50"></div>
+        </div>
+
+        <div class="section-row"><span class="field-label">Ejercicios</span><div class="exercise-actions"><button class="text-button" id="open-catalog" type="button">Buscar ejercicio</button><button class="text-button" id="add-exercise" type="button">+ Añadir manual</button></div></div>
+        <div class="exercise-list" id="exercise-list"></div>
+
+        <div class="field full" style="margin-top:15px"><label for="workout-notes">Notas <span style="color:#9ba39d;font-weight:500">· opcional</span></label><textarea id="workout-notes" name="notes" placeholder="¿Cómo te sentiste? ¿Algo que quieras recordar?"></textarea></div>
+        <div class="form-actions">
+          <button class="primary-button" id="save-button" type="submit"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Guardar entreno</button>
+          <button class="secondary-button" id="cancel-edit" type="button" hidden>Cancelar</button>
+        </div>
+      </form>
+
+      <section class="panel history-panel">
+        <div class="history-head">
+          <div><h2 class="panel-title">Tus entrenos</h2><p class="panel-subtitle">Lo que has ido construyendo.</p></div>
+          <span class="history-count" id="history-count">0 sesiones</span>
+        </div>
+        <div class="session-list" id="session-list"></div>
+      </section>
+    </section>
+    <p class="footer">Tus datos se guardan en este navegador.<br>Catálogo visual: <a href="https://oss.exercisedb.dev/docs" target="_blank" rel="noopener noreferrer">ExerciseDB · AscendAPI</a></p>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <dialog class="catalog-dialog" id="catalog-dialog" aria-labelledby="catalog-title">
+    <div class="catalog-inner">
+      <div class="catalog-head">
+        <div><h2 id="catalog-title">Buscar ejercicio</h2><p>Busca por nombre y añade una demostración visual a tu sesión.</p></div>
+        <button class="icon-button" id="close-catalog" type="button" aria-label="Cerrar buscador" title="Cerrar">×</button>
+      </div>
+      <form class="catalog-search" id="catalog-search-form">
+        <label class="visually-hidden" for="catalog-query">Nombre del ejercicio</label>
+        <input id="catalog-query" type="search" minlength="2" maxlength="80" placeholder="Ej. squat, bench press…" required>
+        <button class="primary-button" type="submit">Buscar</button>
+      </form>
+      <p class="catalog-hint">La búsqueda consulta ExerciseDB y requiere conexión a internet. Catálogo personal y no comercial; se muestra la atribución a AscendAPI.</p>
+      <div class="catalog-results" id="catalog-results" aria-live="polite"><p class="catalog-message">Escribe el nombre de un ejercicio para empezar.</p></div>
+    </div>
+  </dialog>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = 'pulso.workouts.v1';
+      const form = document.getElementById('workout-form');
+      const exerciseList = document.getElementById('exercise-list');
+      const sessionList = document.getElementById('session-list');
+      const saveButton = document.getElementById('save-button');
+      const cancelButton = document.getElementById('cancel-edit');
+      const catalogDialog = document.getElementById('catalog-dialog');
+      const catalogSearchForm = document.getElementById('catalog-search-form');
+      const catalogQuery = document.getElementById('catalog-query');
+      const catalogResults = document.getElementById('catalog-results');
+      const catalogSearchButton = catalogSearchForm.querySelector('button[type="submit"]');
+      let workouts = loadWorkouts();
+      let editingId = null;
+      let toastTimer;
+      let catalogExercises = [];
+
+      const EXERCISE_API = 'https://oss.exercisedb.dev/api/v1';
+
+      function loadWorkouts() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+          return Array.isArray(parsed) ? parsed : [];
+        } catch { return []; }
+      }
+
+      function saveWorkouts() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(workouts));
+          return true;
+        } catch {
+          showToast('No se pudo guardar. Revisa el espacio disponible en tu navegador.');
+          return false;
+        }
+      }
+
+      function localISODate(date = new Date()) {
+        const offset = date.getTimezoneOffset();
+        return new Date(date.getTime() - offset * 60000).toISOString().slice(0, 10);
+      }
+
+      function startOfWeek(date) {
+        const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const day = (monday.getDay() + 6) % 7;
+        monday.setDate(monday.getDate() - day);
+        monday.setHours(0, 0, 0, 0);
+        return monday;
+      }
+
+      function formatDate(value, options = { day: 'numeric', month: 'short', year: 'numeric' }) {
+        const date = new Date(value + 'T12:00:00');
+        return new Intl.DateTimeFormat('es-ES', options).format(date);
+      }
+
+      function escapeHTML(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+      }
+
+      function safeCatalogImage(value) {
+        try {
+          const url = new URL(value);
+          return url.protocol === 'https:' && ['static.exercisedb.dev', 'cdn.exercisedb.dev'].includes(url.hostname) ? url.href : '';
+        } catch { return ''; }
+      }
+
+      function listValue(value) {
+        if (Array.isArray(value)) return value.map(item => String(item));
+        return value ? [String(value)] : [];
+      }
+
+      function catalogItems(payload) {
+        if (Array.isArray(payload)) return payload;
+        if (!payload || typeof payload !== 'object') return [];
+        for (const key of ['data', 'results', 'result', 'exercises', 'items', 'records', 'content', 'hits', 'list']) {
+          const found = catalogItems(payload[key]);
+          if (found.length) return found;
+        }
+        for (const value of Object.values(payload)) {
+          const found = catalogItems(value);
+          if (found.length) return found;
+        }
+        return [];
+      }
+
+      function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+      }
+
+      function addExerciseRow(exercise = {}) {
+        const row = document.createElement('div');
+        row.className = 'exercise-row';
+        const gifUrl = safeCatalogImage(exercise.gifUrl || exercise.imageUrl);
+        row.dataset.exerciseId = exercise.exerciseId || exercise.id || '';
+        row.dataset.gifUrl = gifUrl;
+        row.dataset.targetMuscles = JSON.stringify(listValue(exercise.targetMuscles || exercise.target));
+        row.dataset.equipments = JSON.stringify(listValue(exercise.equipments || exercise.equipment));
+        row.innerHTML = `
+          <div class="field exercise-name"><label>Ejercicio</label><input data-field="name" maxlength="50" placeholder="Ej. Sentadilla" value="${escapeHTML(exercise.name || '')}"></div>
+          <div class="field"><label>Series</label><input data-field="sets" type="number" min="1" max="50" placeholder="4" value="${escapeHTML(exercise.sets ?? '')}"></div>
+          <div class="field"><label>Reps</label><input data-field="reps" type="number" min="1" max="500" placeholder="10" value="${escapeHTML(exercise.reps ?? '')}"></div>
+          <div class="field"><label>Peso kg</label><input data-field="weight" type="number" min="0" max="2000" step="0.5" placeholder="—" value="${escapeHTML(exercise.weight ?? '')}"></div>
+          <button class="remove-exercise" type="button" aria-label="Quitar ejercicio" title="Quitar ejercicio">×</button>
+          ${gifUrl ? `<img class="exercise-row-preview" src="${escapeHTML(gifUrl)}" alt="Demostración de ${escapeHTML(exercise.name || 'ejercicio')}" loading="lazy">` : ''}`;
+        row.querySelector('.remove-exercise').addEventListener('click', () => {
+          if (exerciseList.children.length > 1) row.remove();
+          else row.querySelectorAll('input').forEach(input => input.value = '');
+        });
+        exerciseList.appendChild(row);
+      }
+
+      function resetForm() {
+        form.reset();
+        document.getElementById('workout-date').value = localISODate();
+        exerciseList.innerHTML = '';
+        addExerciseRow();
+        editingId = null;
+        document.getElementById('form-heading').textContent = 'Apunta tu entreno';
+        saveButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Guardar entreno';
+        cancelButton.hidden = true;
+      }
+
+      function getExerciseData() {
+        return [...exerciseList.querySelectorAll('.exercise-row')]
+          .map(row => {
+            const get = field => row.querySelector(`[data-field="${field}"]`).value.trim();
+            return {
+              name: get('name'), sets: get('sets'), reps: get('reps'), weight: get('weight'),
+              exerciseId: row.dataset.exerciseId || '', gifUrl: row.dataset.gifUrl || '',
+              targetMuscles: JSON.parse(row.dataset.targetMuscles || '[]'),
+              equipments: JSON.parse(row.dataset.equipments || '[]')
+            };
+          })
+          .filter(exercise => exercise.name)
+          .map(exercise => ({
+            name: exercise.name,
+            sets: exercise.sets ? Number(exercise.sets) : '',
+            reps: exercise.reps ? Number(exercise.reps) : '',
+            weight: exercise.weight ? Number(exercise.weight) : '',
+            exerciseId: exercise.exerciseId,
+            gifUrl: exercise.gifUrl,
+            targetMuscles: exercise.targetMuscles,
+            equipments: exercise.equipments
+          }));
+      }
+
+      function startEdit(workout) {
+        editingId = workout.id;
+        document.getElementById('workout-name').value = workout.name;
+        document.getElementById('workout-date').value = workout.date;
+        document.getElementById('workout-duration').value = workout.duration || '';
+        document.getElementById('workout-notes').value = workout.notes || '';
+        exerciseList.innerHTML = '';
+        (workout.exercises.length ? workout.exercises : [{}]).forEach(addExerciseRow);
+        document.getElementById('form-heading').textContent = 'Edita tu entreno';
+        saveButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Guardar cambios';
+        cancelButton.hidden = false;
+        document.getElementById('workout-name').focus();
+      }
+
+      function renderStats() {
+        const now = new Date();
+        const weekStart = startOfWeek(now);
+        const nextWeek = new Date(weekStart);
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        const thisWeek = workouts.filter(workout => {
+          const date = new Date(workout.date + 'T12:00:00');
+          return date >= weekStart && date < nextWeek;
+        });
+        const minutes = thisWeek.reduce((sum, workout) => sum + (Number(workout.duration) || 0), 0);
+        document.getElementById('week-count').textContent = thisWeek.length;
+        document.getElementById('week-minutes').textContent = minutes;
+        document.getElementById('total-count').textContent = workouts.length;
+        document.getElementById('history-count').textContent = `${workouts.length} ${workouts.length === 1 ? 'sesión' : 'sesiones'}`;
+        document.getElementById('today-label').textContent = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }).format(now);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        const shortDate = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' });
+        document.getElementById('week-label').textContent = `Del ${shortDate.format(weekStart)} al ${shortDate.format(weekEnd)}`;
+      }
+
+      function renderSessions() {
+        const sorted = [...workouts].sort((a, b) => b.date.localeCompare(a.date) || (b.createdAt || 0) - (a.createdAt || 0));
+        if (!sorted.length) {
+          sessionList.innerHTML = `<div class="empty"><span class="empty-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M6 4h12a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8 9h8M8 13h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span><h3>Tu primer entreno empieza aquí</h3><p>Cuando guardes una sesión, aparecerá en este espacio para que puedas volver a ella.</p></div>`;
+          return;
+        }
+        sessionList.innerHTML = sorted.map(workout => {
+          const exercises = (workout.exercises || []).map(exercise => {
+            const detail = [exercise.sets && `${exercise.sets}×`, exercise.reps && `${exercise.reps}`, exercise.weight !== '' && exercise.weight != null && `${exercise.weight} kg`].filter(Boolean).join(' · ');
+            const image = safeCatalogImage(exercise.gifUrl);
+            const metadata = [...listValue(exercise.targetMuscles), ...listValue(exercise.equipments)].join(' · ');
+            return `<span class="exercise-pill">${image ? `<img src="${escapeHTML(image)}" alt="Demostración de ${escapeHTML(exercise.name)}" loading="lazy">` : ''}<span class="exercise-pill-content"><strong>${escapeHTML(exercise.name)}</strong>${detail ? `<span>${escapeHTML(detail)}</span>` : ''}${metadata ? `<span class="exercise-pill-meta">${escapeHTML(metadata)}</span>` : ''}</span></span>`;
+          }).join('');
+          const duration = workout.duration ? `◷ ${escapeHTML(workout.duration)} min` : '';
+          return `<article class="session-card">
+            <div class="session-top"><div><h3 class="session-title">${escapeHTML(workout.name)}</h3><div class="session-meta"><span>${escapeHTML(formatDate(workout.date))}</span>${duration ? `<span>${duration}</span>` : ''}<span>${(workout.exercises || []).length} ${(workout.exercises || []).length === 1 ? 'ejercicio' : 'ejercicios'}</span></div></div>
+            <div class="session-buttons"><button class="icon-button edit" type="button" aria-label="Editar ${escapeHTML(workout.name)}" title="Editar" data-action="edit" data-id="${escapeHTML(workout.id)}"><svg viewBox="0 0 24 24" fill="none"><path d="m14 5 5 5M4 20l4-.8L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="icon-button delete" type="button" aria-label="Eliminar ${escapeHTML(workout.name)}" title="Eliminar" data-action="delete" data-id="${escapeHTML(workout.id)}"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 14h12l1-14M9 7V4h6v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
+            ${exercises ? `<div class="session-exercises">${exercises}</div>` : ''}
+            ${workout.notes ? `<p class="session-note">${escapeHTML(workout.notes)}</p>` : ''}
+          </article>`;
+        }).join('');
+      }
+
+      function render() { renderStats(); renderSessions(); }
+
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        if (!form.reportValidity()) return;
+        const exercises = getExerciseData();
+        if (!exercises.length) {
+          showToast('Añade al menos un ejercicio con nombre.');
+          exerciseList.querySelector('[data-field="name"]')?.focus();
+          return;
+        }
+        const existing = workouts.find(workout => workout.id === editingId);
+        const workout = {
+          id: editingId || (globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`),
+          name: document.getElementById('workout-name').value.trim(),
+          date: document.getElementById('workout-date').value,
+          duration: document.getElementById('workout-duration').value ? Number(document.getElementById('workout-duration').value) : '',
+          notes: document.getElementById('workout-notes').value.trim(),
+          exercises,
+          createdAt: existing?.createdAt || Date.now()
+        };
+        if (existing) workouts = workouts.map(item => item.id === editingId ? workout : item);
+        else workouts.push(workout);
+        if (!saveWorkouts()) return;
+        resetForm();
+        render();
+        showToast(existing ? 'Entreno actualizado.' : 'Entreno guardado. ¡Buen trabajo!');
+      });
+
+      document.getElementById('add-exercise').addEventListener('click', () => addExerciseRow());
+      document.getElementById('open-catalog').addEventListener('click', () => {
+        catalogDialog.showModal();
+        catalogQuery.focus();
+      });
+      document.getElementById('close-catalog').addEventListener('click', () => catalogDialog.close());
+      catalogDialog.addEventListener('click', event => {
+        if (event.target === catalogDialog) catalogDialog.close();
+      });
+      catalogSearchForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        const query = catalogQuery.value.trim();
+        if (query.length < 2) return;
+        catalogSearchButton.disabled = true;
+        catalogSearchButton.textContent = 'Buscando…';
+        catalogResults.innerHTML = '<p class="catalog-message">Buscando ejercicios…</p>';
+        try {
+          const searchUrl = new URL(`${EXERCISE_API}/exercises/search`);
+          for (const key of ['q', 'query', 'search', 'searchTerm', 'name', 'term']) searchUrl.searchParams.set(key, query);
+          const response = await fetch(searchUrl, { headers: { Accept: 'application/json' } });
+          if (!response.ok) {
+            if (response.status === 429) throw new Error('El catálogo ha alcanzado su límite de consultas. Espera un poco e inténtalo de nuevo.');
+            throw new Error('No se pudo consultar el catálogo. Vuelve a intentarlo dentro de un momento.');
+          }
+          const payload = await response.json();
+          catalogExercises = catalogItems(payload).slice(0, 20);
+          if (!catalogExercises.length) {
+            catalogResults.innerHTML = '<p class="catalog-message">No encontré ejercicios con ese nombre. Prueba en inglés, por ejemplo “squat” o “bench press”.</p>';
+            return;
+          }
+          catalogResults.innerHTML = catalogExercises.map((exercise, index) => {
+            const name = exercise.name || exercise.exerciseName || 'Ejercicio';
+            const image = safeCatalogImage(exercise.gifUrl || exercise.imageUrl);
+            const muscles = listValue(exercise.targetMuscles || exercise.target).join(', ');
+            const bodyParts = listValue(exercise.bodyParts || exercise.bodyPart).join(', ');
+            const equipment = listValue(exercise.equipments || exercise.equipment).join(', ');
+            const meta = [bodyParts, muscles && `Músculo: ${muscles}`, equipment && `Material: ${equipment}`].filter(Boolean).join(' · ');
+            return `<article class="catalog-result">${image ? `<img src="${escapeHTML(image)}" alt="Demostración de ${escapeHTML(name)}" loading="lazy">` : '<div class="catalog-image-placeholder" aria-hidden="true">Sin GIF</div>'}<div><h3>${escapeHTML(name)}</h3><p>${escapeHTML(meta || 'Demostración disponible en el catálogo')}</p></div><button class="secondary-button" type="button" data-catalog-index="${index}">Añadir</button></article>`;
+          }).join('');
+        } catch (error) {
+          catalogResults.innerHTML = `<p class="catalog-message">${escapeHTML(error.message || 'No se pudo conectar con ExerciseDB. Comprueba tu conexión e inténtalo de nuevo.')}</p>`;
+        } finally {
+          catalogSearchButton.disabled = false;
+          catalogSearchButton.textContent = 'Buscar';
+        }
+      });
+      catalogResults.addEventListener('click', event => {
+        const button = event.target.closest('[data-catalog-index]');
+        if (!button) return;
+        const exercise = catalogExercises[Number(button.dataset.catalogIndex)];
+        if (!exercise) return;
+        addExerciseRow(exercise);
+        catalogDialog.close();
+        showToast(`${exercise.name || 'Ejercicio'} añadido a la sesión.`);
+      });
+      cancelButton.addEventListener('click', resetForm);
+      sessionList.addEventListener('click', event => {
+        const button = event.target.closest('[data-action]');
+        if (!button) return;
+        const workout = workouts.find(item => item.id === button.dataset.id);
+        if (!workout) return;
+        if (button.dataset.action === 'edit') startEdit(workout);
+        if (button.dataset.action === 'delete' && window.confirm(`¿Eliminar “${workout.name}”?`)) {
+          workouts = workouts.filter(item => item.id !== workout.id);
+          saveWorkouts();
+          if (editingId === workout.id) resetForm();
+          render();
+          showToast('Entreno eliminado.');
+        }
+      });
+
+      document.getElementById('workout-date').value = localISODate();
+      addExerciseRow();
+      render();
+    })();
+  </script>
+</body>
+</html>
